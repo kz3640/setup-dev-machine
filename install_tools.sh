@@ -5,6 +5,41 @@ declare -a formulae=("hashicorp/tap/terraform" "kind" "grype" "melange" "apko" "
 declare -a casks=("visual-studio-code" "slack" "google-chrome" "1password")
 declare -a taps=("hashicorp/tap")
 
+# Docker Variables
+DOCKER_URL="https://desktop.docker.com/mac/stable/arm64/Docker.dmg"
+DMG_FILE="Docker.dmg"
+VOLUME_PATH="/Volumes/Docker"
+APPLICATIONS_DIR="/Applications"
+
+# Function to install Docker
+# Note, using 'brew cask' to install docker doesn't work so well.
+# It'll continuously prompt each time for creds to create / remove links.
+install_docker() {
+    echo "Initiating Docker Desktop installation..."
+
+    # Download Docker for Apple Silicon
+    echo "Downloading Docker..."
+    curl -L $DOCKER_URL -o $DMG_FILE
+
+    # Attach the DMG
+    echo "Attaching DMG..."
+    hdiutil attach $DMG_FILE -nobrowse
+
+    # Copy Docker.app to the Applications directory
+    echo "Copying Docker.app to the Applications folder..."
+    cp -R "$VOLUME_PATH/Docker.app" $APPLICATIONS_DIR
+
+    # Eject the volume
+    echo "Ejecting Docker volume..."
+    hdiutil detach $VOLUME_PATH
+
+    # Remove the DMG file
+    echo "Cleaning up..."
+    rm $DMG_FILE
+
+    echo "Docker has been installed. Please open Docker from the Applications folder to complete setup."
+}
+
 # Check for XCode Command Line Tools and install if not found
 if ! xcode-select -p &>/dev/null; then
     echo "XCode Command Line Tools not found. Installing..."
@@ -28,20 +63,7 @@ for tap in "${taps[@]}"; do
     brew tap "$tap"
 done
 
-# Create a combined list of formulae and casks for the message
-combined_tools=("${formulae[@]}" "${casks[@]}")
-formatted_list=$(IFS=, ; echo "${combined_tools[*]}")
-
-echo "The script will attempt to install the following tools: ${formatted_list//,/, }"
-read -p "Do you want to continue? (y/n) " answer
-if [[ "$answer" != "y" ]]; then
-    echo "Installation aborted."
-    exit 1
-fi
-
 # Install or reinstall each formula
-# If an app was installed via brew cask, but deleted manually, the
-# re-install will catch that.
 for package in "${formulae[@]}"; do
     if brew list --formula | grep -q "^${package%%/*}$"; then
         echo "$package is already installed. Attempting to reinstall..."
@@ -63,4 +85,7 @@ for app in "${casks[@]}"; do
     fi
 done
 
-echo "All tools installed or reinstalled successfully!"
+# Invoke the Docker installation function
+install_docker
+
+echo "All tools including Docker installed or reinstalled successfully!"
