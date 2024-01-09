@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Define packages and taps to install
-declare -a formulae=("hashicorp/tap/terraform" "kind" "grype" "melange" "apko" "dive")
-declare -a casks=("visual-studio-code" "slack" "google-chrome" "1password")
+declare -a formulae=("apko" "dive" "docker" "docker-credential-helper" "grype" "kind" "melange" "hashicorp/tap/terraform")
+declare -a casks=("1password" "google-chrome" "slack" "visual-studio-code")
 declare -a taps=("hashicorp/tap")
 
-# Docker Variables
+# Docker desktop Variables
 DOCKER_URL="https://desktop.docker.com/mac/stable/arm64/Docker.dmg"
 DMG_FILE="Docker.dmg"
 VOLUME_PATH="/Volumes/Docker"
@@ -14,7 +14,15 @@ APPLICATIONS_DIR="/Applications"
 # Function to install Docker
 # Note, using 'brew cask' to install docker doesn't work so well.
 # It'll continuously prompt each time for creds to create / remove links.
-install_docker() {
+
+# NOTE: 'brew install --cask docker' does not install cleanly, and prompts
+# multiple times for credentials (and we cannot run brew with sudo). As an
+# alternative,e we pull doen the .dmg.
+#
+# This approach requires us to install 'docker' and 'docker-credential-helper'
+# CLI tools separately (which we've already covered above).
+#
+install_docker_desktop() {
     echo "Initiating Docker Desktop installation..."
 
     # Download Docker for Apple Silicon
@@ -85,7 +93,6 @@ for app in "${casks[@]}"; do
     fi
 done
 
-# Invoke the Docker installation function
-install_docker
+install_docker_desktop
 
 echo "All tools including Docker installed or reinstalled successfully!"
