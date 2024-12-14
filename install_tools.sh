@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Define packages and taps to install
-declare -a formulae=("apko" "dive" "docker" "docker-credential-helper" "grype" "kind" "melange" "hashicorp/tap/terraform")
+declare -a formulae=("apko" "dive" "docker" "docker-credential-helper" "grype" "kind" "melange" "hashicorp/tap/terraform" "google-cloud-sdk
+")
 declare -a casks=("1password" "google-chrome" "slack" "visual-studio-code")
 declare -a taps=("hashicorp/tap")
 
